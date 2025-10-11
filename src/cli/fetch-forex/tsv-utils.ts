@@ -117,8 +117,6 @@ export function updateTsvFile(newEntries: ForexEntry[]): {
   const mergedEntries = mergeEntries(existingEntries, newEntries);
   writeTsvFile(tsvPath, mergedEntries);
 
-  console.log(chalk.green(`✅ Updated ${relativePath} with ${newEntries.length} new entries`));
-
   return {
     newEntriesCount: newEntries.length,
     tsvPath: relativePath,

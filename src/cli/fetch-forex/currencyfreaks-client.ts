@@ -102,7 +102,10 @@ async function fetchRateForDate(apiKey: string, date: string): Promise<number | 
     // Convert USD→GBP rate to GBP→USD rate (inverse)
     const gbpToUsdRate = 1 / usdToGbpRate;
 
-    return gbpToUsdRate;
+    // Truncate to 4 decimal places
+    const truncatedRate = Math.round(gbpToUsdRate * 10000) / 10000;
+
+    return truncatedRate;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
@@ -171,17 +174,8 @@ export async function fetchDailyForexRates(
   const datesToFetch = allDatesInMonth.filter((date) => !existingDates.has(date));
 
   if (datesToFetch.length === 0) {
-    console.log(
-      chalk.blue(`ℹ️  All dates already exist for ${year}-${month.toString().padStart(2, "0")}`),
-    );
     return [];
   }
-
-  console.log(
-    chalk.cyan(
-      `🔍 Fetching ${datesToFetch.length} daily GBP/USD rates for ${year}-${month.toString().padStart(2, "0")}`,
-    ),
-  );
 
   const rates: ForexRateEntry[] = [];
   let successCount = 0;
@@ -204,12 +198,6 @@ export async function fetchDailyForexRates(
       await delay(REQUEST_DELAY);
     }
   }
-
-  console.log(
-    chalk.green(
-      `✅ Successfully fetched ${successCount} rates${skipCount > 0 ? `, skipped ${skipCount} dates` : ""}`,
-    ),
-  );
 
   return rates;
 }
