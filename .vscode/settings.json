@@ -1,0 +1,15 @@
+{
+  "biome.enabled": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "rainbow_csv.comment_prefix": "#",
+  "[css][javascript][javascriptreact][json][jsonc][graphql][typescript][typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[md][yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

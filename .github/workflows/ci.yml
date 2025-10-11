@@ -1,0 +1,36 @@
+name: "CI"
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.ref }}
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v5
+
+      - name: Set up devkit
+        uses: sablier-labs/devkit/actions/setup@main
+        with:
+          package-manager: bun
+
+      - uses: cargo-bins/cargo-binstall@main
+      - run: cargo binstall --no-confirm qsv
+
+      - name: Run code checks
+        run: |
+          just full-check
+          just tsv-check
+
+      - name: Add summary
+        run: | #shell
+          echo "## CI result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
