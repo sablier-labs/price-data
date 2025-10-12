@@ -1,4 +1,4 @@
-name: "Update Price Data"
+name: "Cron: update data"
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # Allows manual triggering
 
 jobs:
-  update-data:
+  update-price-data:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
