@@ -64,7 +64,7 @@ function getAllMonthsSinceMinYear(): Array<{ year: number; month: number }> {
     const endMonth = year === currentYear ? currentMonth : 12;
 
     for (let month = startMonth; month <= endMonth; month++) {
-      months.push({ year, month });
+      months.push({ month, year });
     }
   }
 
@@ -82,7 +82,7 @@ function getAllMonthsForYear(year: number): Array<{ year: number; month: number 
   const endMonth = year === currentYear ? currentMonth : 12;
 
   for (let month = 1; month <= endMonth; month++) {
-    months.push({ year, month });
+    months.push({ month, year });
   }
 
   return months;
@@ -232,11 +232,19 @@ async function fetchForexRatesAction(options: FetchForexRatesOptions): Promise<v
       // Fetch all months for a specific year
       const yearNum = validateYearForAll(options.year);
       allMonths = getAllMonthsForYear(yearNum);
-      console.log(chalk.cyan(`🔍 Fetching GBP/USD forex rates for all months in ${yearNum} (${allMonths.length} months)\n`));
+      console.log(
+        chalk.cyan(
+          `🔍 Fetching GBP/USD forex rates for all months in ${yearNum} (${allMonths.length} months)\n`,
+        ),
+      );
     } else {
       // Fetch all months from MIN_YEAR to current
       allMonths = getAllMonthsSinceMinYear();
-      console.log(chalk.cyan(`🔍 Fetching GBP/USD forex rates for all months (${allMonths.length} months total)\n`));
+      console.log(
+        chalk.cyan(
+          `🔍 Fetching GBP/USD forex rates for all months (${allMonths.length} months total)\n`,
+        ),
+      );
     }
 
     const results: ProcessingResult[] = [];
@@ -265,10 +273,10 @@ async function fetchForexRatesAction(options: FetchForexRatesOptions): Promise<v
 
         results.push({
           month: monthStr,
-          year: yearStr,
           newEntriesCount,
           status: newEntriesCount > 0 ? "success" : "skipped",
           tsvPath,
+          year: yearStr,
         });
 
         // Add newline after each month for cleaner output

@@ -178,8 +178,6 @@ export async function fetchDailyForexRates(
   }
 
   const rates: ForexRateEntry[] = [];
-  let successCount = 0;
-  let skipCount = 0;
 
   for (let i = 0; i < datesToFetch.length; i++) {
     const date = datesToFetch[i];
@@ -187,10 +185,6 @@ export async function fetchDailyForexRates(
 
     if (rate !== null) {
       rates.push({ date, rate });
-      successCount++;
-    } else {
-      // Skip weekends/holidays if API returns no data
-      skipCount++;
     }
 
     // Add delay between requests to respect rate limits
