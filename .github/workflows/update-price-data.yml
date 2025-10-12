@@ -11,20 +11,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-
-      - name: Get app installation token
-        id: app-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.APP_ID }}
-          owner: ${{ github.repository_owner }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          repositories: price-data,indexers,accounting
-
       - name: Set up devkit
         uses: sablier-labs/devkit/actions/setup@main
         with:
           package-manager: bun
+
+      - name: Install qsv
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install qsv binary
+        run: cargo binstall --no-confirm qsv
 
       - name: Fetch cryptocurrency prices
         env:
@@ -37,6 +33,9 @@ jobs:
           CURRENCY_FREAKS_API_KEY: ${{ secrets.CURRENCY_FREAKS_API_KEY }}
         run: just fetch-forex
 
+      - name: Validate TSV files
+        run: just tsv-check
+
       - name: Verify changes
         run: | #shell
           if ! git diff --quiet -- crypto/ forex/; then
@@ -46,6 +45,15 @@ jobs:
             echo "❌ No TSV files were updated - API fetch may have failed"
             exit 1
           fi
+
+      - name: Get app installation token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_ID }}
+          owner: ${{ github.repository_owner }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          repositories: price-data,indexers,accounting
 
       - name: Generate timestamp
         id: timestamp

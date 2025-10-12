@@ -35,7 +35,6 @@ YEAR := ```
 # ---------------------------------------------------------------------------- #
 
 # Fetch cryptocurrency prices from CoinGecko
-[group("scripts")]
 @fetch-crypto currency year=YEAR month=MONTH *args:
     na tsx src/cli/fetch-crypto.ts \
         --currency {{ currency }} \
@@ -44,7 +43,6 @@ YEAR := ```
         {{ args }}
 
 # Fetch daily GBP/USD forex rates from CurrencyFreaks
-[group("scripts")]
 @fetch-forex year=YEAR month=MONTH *args:
     na tsx src/cli/fetch-forex.ts \
         --year {{ year }} \
@@ -52,11 +50,10 @@ YEAR := ```
         {{ args }}
 
 # Check TSV files
-[group("lint")]
+[group("checks")]
 [script]
 tsv-check:
     echo "Validating TSV files..."
-    has_error=0
     for file in data/transactions/*/*.tsv; do
         # Skip validation artifact files
         case "$file" in
@@ -68,13 +65,10 @@ tsv-check:
         # Skip if no files match the pattern
         [ -e "$file" ] || continue
 
-        if ! qsv validate "$file" &>/dev/null; then
-            echo "❌ $file is invalid"
+        if ! qsv validate "$file" data/transactions/schema.json > /dev/null 2>&1; then
+            echo "❌ Validation failed for: $file"
             echo "See $file.validation-errors.tsv for details"
-            has_error=1
+            exit 1
         fi
     done
-    if [ $has_error -eq 1 ]; then
-        exit 1
-    fi
     echo "✅ All TSV files are valid"
