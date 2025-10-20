@@ -1,4 +1,4 @@
-name: "Cron: update data"
+name: "Cron: Update Data"
 
 on:
   schedule:
