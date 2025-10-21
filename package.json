@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.5",
-    "@sablier/devkit": "github:sablier-labs/devkit#main",
+    "@sablier/devkit": "^1.1.3",
     "@types/node": "^24.7.2",
     "axios": "^1.12.2",
     "axios-retry": "^4.5.0",
@@ -46,7 +46,7 @@
     "ora": "^9.0.0",
     "prettier": "^3.6.2",
     "radash": "^12.1.1",
-    "sablier": "1.2.0-beta.4",
+    "sablier": "^1.2.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.2"
   }

@@ -126,7 +126,7 @@ function mergeEntries(
     a.date.localeCompare(b.date),
   );
 
-  return { mergedEntries, changedCount };
+  return { changedCount, mergedEntries };
 }
 
 function writeTsvFile(tsvPath: string, entries: CryptoRateEntry[]): void {

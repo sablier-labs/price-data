@@ -45,7 +45,7 @@ export const coinConfigs: Record<string, CoinConfig> = {
     coinGeckoId: "scroll",
   },
   [chains.sei.nativeCurrency.symbol]: {
-    coinGeckoId: chains.sei.nativeCurrency.coinGeckoId,
+    coinGeckoId: "sei-network",
   },
   [chains.sonic.nativeCurrency.symbol]: {
     coinGeckoId: chains.sonic.nativeCurrency.coinGeckoId,

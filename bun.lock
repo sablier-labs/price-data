@@ -5,7 +5,7 @@
       "name": "@sablier/price-data",
       "devDependencies": {
         "@biomejs/biome": "^2.2.5",
-        "@sablier/devkit": "github:sablier-labs/devkit#main",
+        "@sablier/devkit": "^1.1.3",
         "@types/node": "^24.7.2",
         "axios": "^1.12.2",
         "axios-retry": "^4.5.0",
@@ -16,7 +16,7 @@
         "ora": "^9.0.0",
         "prettier": "^3.6.2",
         "radash": "^12.1.1",
-        "sablier": "1.2.0-beta.4",
+        "sablier": "^1.2.1",
         "tsx": "^4.20.6",
         "typescript": "^5.9.2",
       },
@@ -103,7 +103,7 @@
 
     "@noble/hashes": ["@noble/hashes@1.8.0", "", {}, "sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A=="],
 
-    "@sablier/devkit": ["@sablier/devkit@github:sablier-labs/devkit#6c5c9ff", {}, "sablier-labs-devkit-6c5c9ff"],
+    "@sablier/devkit": ["@sablier/devkit@1.1.3", "", {}, "sha512-JeYhtRtuW5Gn1LsfXisgwJgTTxzm2akvNZrbwSnmTUa6wIokJjCHcx65lTCFgJdQvcAMbR3rTYnwXqe4Q17IAQ=="],
 
     "@scure/base": ["@scure/base@1.2.6", "", {}, "sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg=="],
 
@@ -219,7 +219,7 @@
 
     "restore-cursor": ["restore-cursor@5.1.0", "", { "dependencies": { "onetime": "^7.0.0", "signal-exit": "^4.1.0" } }, "sha512-oMA2dcrw6u0YfxJQXm342bFKX/E4sG9rbTzO9ptUcR/e8A33cHuvStiYOwH7fszkZlZ1z/ta9AAoPk2F4qIOHA=="],
 
-    "sablier": ["sablier@1.2.0-beta.4", "", { "dependencies": { "lodash": "^4.17.21", "viem": "^2.33" } }, "sha512-RveeGQJBqhVOiMLWObpuG5UVgZGnOKkYmy0MgABh7IsrEVopshiCiT1vxzKCVYzvgiPGSHqmaVLW+TQkAhlTQw=="],
+    "sablier": ["sablier@1.2.1", "", { "dependencies": { "lodash": "^4.17.21", "viem": "^2.33" } }, "sha512-GnkohFhwEUiR7LNmhd71Vza2aCsf0LXcAn40O6qgLbtf/AgMvyG7q5mU1omlTwYaZI9G2Lc+MhGlgzMStzT0Kg=="],
 
     "signal-exit": ["signal-exit@4.1.0", "", {}, "sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw=="],
 
