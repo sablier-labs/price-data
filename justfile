@@ -21,11 +21,6 @@ qsv := require("qsv")
 #                                   CONSTANTS                                  #
 # ---------------------------------------------------------------------------- #
 
-# Current month
-MONTH := ```
-    node -e "console.log(String(new Date().getMonth() + 1).padStart(2, '0'))"
-```
-
 # Current year
 YEAR := ```
     node -e "console.log(new Date().getFullYear())"
@@ -36,7 +31,7 @@ YEAR := ```
 # ---------------------------------------------------------------------------- #
 
 # Fetch cryptocurrency prices from CoinGecko
-@fetch-crypto currency year=YEAR month='all' *args:
+@fetch-crypto currency year=YEAR month="all" *args:
     na tsx src/cli/fetch-crypto.ts \
         --currency {{ currency }} \
         --year {{ year }} \
@@ -44,7 +39,7 @@ YEAR := ```
         {{ args }}
 
 # Fetch daily GBP/USD forex rates from CurrencyFreaks
-@fetch-forex year=YEAR month='all' *args:
+@fetch-forex year=YEAR month="all" *args:
     na tsx src/cli/fetch-forex.ts \
         --year {{ year }} \
         --month {{ month }} \

@@ -91,12 +91,14 @@ function mergeEntries(
   existingEntries: CryptoRateEntry[],
   newEntries: CryptoRateEntry[],
   targetMonth: string,
-): CryptoRateEntry[] {
+): { mergedEntries: CryptoRateEntry[]; changedCount: number } {
   // Build a map of all existing entries by date for O(1) lookup
   const existingMap = new Map<string, CryptoRateEntry>();
   for (const entry of existingEntries) {
     existingMap.set(entry.date, entry);
   }
+
+  let changedCount = 0;
 
   // Process new entries for the target month: override if rate differs, or add if new
   for (const newEntry of newEntries) {
@@ -107,18 +109,24 @@ function mergeEntries(
 
     const existing = existingMap.get(newEntry.date);
     if (existing) {
-      // Override only if the rate is different
-      if (existing.rate !== newEntry.rate) {
+      // Override only if the price is different
+      if (existing.price !== newEntry.price) {
         existingMap.set(newEntry.date, newEntry);
+        changedCount++;
       }
     } else {
       // New date, add it
       existingMap.set(newEntry.date, newEntry);
+      changedCount++;
     }
   }
 
   // Convert map back to array and sort by date ascending
-  return Array.from(existingMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+  const mergedEntries = Array.from(existingMap.values()).sort((a, b) =>
+    a.date.localeCompare(b.date),
+  );
+
+  return { mergedEntries, changedCount };
 }
 
 function writeTsvFile(tsvPath: string, entries: CryptoRateEntry[]): void {
@@ -148,17 +156,16 @@ export function updateTsvFile(
   }
 
   const targetMonthStr = `${year}-${month.toString().padStart(2, "0")}`;
-  const mergedEntries = mergeEntries(existingEntries, newEntries, targetMonthStr);
+  const { mergedEntries, changedCount } = mergeEntries(existingEntries, newEntries, targetMonthStr);
 
-  const newEntriesCount = mergedEntries.length - existingEntries.length;
-  if (newEntriesCount === 0) {
+  if (changedCount === 0) {
     return { newEntriesCount: 0, tsvPath };
   }
 
   writeTsvFile(tsvPath, mergedEntries);
 
   return {
-    newEntriesCount,
+    newEntriesCount: changedCount,
     tsvPath,
   };
 }
