@@ -16,7 +16,7 @@
         "ora": "^9.0.0",
         "prettier": "^3.6.2",
         "radash": "^12.1.1",
-        "sablier": "^1.2.1",
+        "sablier": "1.2.2",
         "tsx": "^4.20.6",
         "typescript": "^5.9.2",
       },
@@ -219,7 +219,7 @@
 
     "restore-cursor": ["restore-cursor@5.1.0", "", { "dependencies": { "onetime": "^7.0.0", "signal-exit": "^4.1.0" } }, "sha512-oMA2dcrw6u0YfxJQXm342bFKX/E4sG9rbTzO9ptUcR/e8A33cHuvStiYOwH7fszkZlZ1z/ta9AAoPk2F4qIOHA=="],
 
-    "sablier": ["sablier@1.2.1", "", { "dependencies": { "lodash": "^4.17.21", "viem": "^2.33" } }, "sha512-GnkohFhwEUiR7LNmhd71Vza2aCsf0LXcAn40O6qgLbtf/AgMvyG7q5mU1omlTwYaZI9G2Lc+MhGlgzMStzT0Kg=="],
+    "sablier": ["sablier@1.2.2", "", { "dependencies": { "lodash": "^4.17.21", "viem": "^2.33" } }, "sha512-nwXs1i4GfQn/WQX1dtJhqz1eYVgzrvFKqwviO144wMspzdQgGmhuFbrQ5YY1iIg7/PumHhN7780QQFFsA32MXg=="],
 
     "signal-exit": ["signal-exit@4.1.0", "", {}, "sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw=="],
 
