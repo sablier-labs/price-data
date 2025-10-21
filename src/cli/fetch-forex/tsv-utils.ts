@@ -84,11 +84,28 @@ export function getExistingDatesForMonth(year: number, month: number): Set<strin
 /* -------------------------------------------------------------------------- */
 
 function mergeEntries(existingEntries: ForexEntry[], newEntries: ForexEntry[]): ForexEntry[] {
-  // Combine existing and new entries, then sort by date
-  const allEntries = [...existingEntries, ...newEntries];
+  // Build a map of existing entries by date for O(1) lookup
+  const existingMap = new Map<string, ForexEntry>();
+  for (const entry of existingEntries) {
+    existingMap.set(entry.date, entry);
+  }
 
-  // Sort by date ascending
-  return allEntries.sort((a, b) => a.date.localeCompare(b.date));
+  // Process new entries: override existing if rate differs, or add if new
+  for (const newEntry of newEntries) {
+    const existing = existingMap.get(newEntry.date);
+    if (existing) {
+      // Override only if the rate is different
+      if (existing.rate !== newEntry.rate) {
+        existingMap.set(newEntry.date, newEntry);
+      }
+    } else {
+      // New date, add it
+      existingMap.set(newEntry.date, newEntry);
+    }
+  }
+
+  // Convert map back to array and sort by date ascending
+  return Array.from(existingMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 }
 
 function writeTsvFile(tsvPath: string, entries: ForexEntry[]): void {

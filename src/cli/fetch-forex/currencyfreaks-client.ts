@@ -170,8 +170,9 @@ export async function fetchDailyForexRates(
   const apiKey = getCurrencyFreaksApiKey();
   const allDatesInMonth = getDatesInMonth(year, month);
 
-  // Filter out dates that already exist
-  const datesToFetch = allDatesInMonth.filter((date) => !existingDates.has(date));
+  // Fetch all dates in the month (no filtering of existing dates)
+  // This allows us to compare and override existing data when API values differ
+  const datesToFetch = allDatesInMonth;
 
   if (datesToFetch.length === 0) {
     return [];
