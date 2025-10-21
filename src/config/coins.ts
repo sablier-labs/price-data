@@ -53,6 +53,9 @@ export const coinConfigs: Record<string, CoinConfig> = {
   [chains.sophon.nativeCurrency.symbol]: {
     coinGeckoId: chains.sophon.nativeCurrency.coinGeckoId,
   },
+  SOL: {
+    coinGeckoId: "solana",
+  },
   stETH: {
     coinGeckoId: "staked-ether",
   },

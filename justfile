@@ -1,6 +1,7 @@
 # See https://github.com/sablier-labs/devkit/blob/main/just/base.just
 import "./node_modules/@sablier/devkit/just/base.just"
 import "./node_modules/@sablier/devkit/just/npm.just"
+import "./node_modules/@sablier/devkit/just/tsv.just"
 
 set dotenv-load := true
 
@@ -53,22 +54,4 @@ YEAR := ```
 [group("checks")]
 [script]
 tsv-check:
-    echo "Validating TSV files..."
-    for file in data/transactions/*/*.tsv; do
-        # Skip validation artifact files
-        case "$file" in
-            *.tsv.invalid|*.tsv.valid|*validation-errors.tsv)
-                continue
-                ;;
-        esac
-
-        # Skip if no files match the pattern
-        [ -e "$file" ] || continue
-
-        if ! qsv validate "$file" data/transactions/schema.json > /dev/null 2>&1; then
-            echo "❌ Validation failed for: $file"
-            echo "See $file.validation-errors.tsv for details"
-            exit 1
-        fi
-    done
-    echo "✅ All TSV files are valid"
+    just _tsv-check "{crypto,forex}/*.tsv"

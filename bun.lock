@@ -103,7 +103,7 @@
 
     "@noble/hashes": ["@noble/hashes@1.8.0", "", {}, "sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A=="],
 
-    "@sablier/devkit": ["@sablier/devkit@github:sablier-labs/devkit#d6cf3d3", {}, "sablier-labs-devkit-d6cf3d3"],
+    "@sablier/devkit": ["@sablier/devkit@github:sablier-labs/devkit#6c5c9ff", {}, "sablier-labs-devkit-6c5c9ff"],
 
     "@scure/base": ["@scure/base@1.2.6", "", {}, "sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg=="],
 
