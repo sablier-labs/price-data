@@ -141,7 +141,7 @@ function getDatesInMonth(year: number, month: number): string[] {
 
   if (year === currentYear && month === currentMonth) {
     // Current month: fetch up to yesterday
-    endDate = now.subtract(1, "day").startOf("day");
+    endDate = now.subtract(1, "day").endOf("day");
   } else {
     // Past months: fetch all days in month
     endDate = startDate.endOf("month");
