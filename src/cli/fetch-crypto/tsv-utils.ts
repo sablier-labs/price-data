@@ -92,21 +92,33 @@ function mergeEntries(
   newEntries: CryptoRateEntry[],
   targetMonth: string,
 ): CryptoRateEntry[] {
-  // Filter out dates that already exist in the target month
-  const existingDatesInMonth = new Set(
-    existingEntries
-      .filter((entry) => entry.date.startsWith(targetMonth))
-      .map((entry) => entry.date),
-  );
-
-  const filteredNewEntries = newEntries.filter((entry) => !existingDatesInMonth.has(entry.date));
-
-  if (filteredNewEntries.length === 0) {
-    return existingEntries;
+  // Build a map of all existing entries by date for O(1) lookup
+  const existingMap = new Map<string, CryptoRateEntry>();
+  for (const entry of existingEntries) {
+    existingMap.set(entry.date, entry);
   }
 
-  // Combine existing and filtered new entries, then sort by date
-  return [...existingEntries, ...filteredNewEntries].sort((a, b) => a.date.localeCompare(b.date));
+  // Process new entries for the target month: override if rate differs, or add if new
+  for (const newEntry of newEntries) {
+    // Only process entries in the target month
+    if (!newEntry.date.startsWith(targetMonth)) {
+      continue;
+    }
+
+    const existing = existingMap.get(newEntry.date);
+    if (existing) {
+      // Override only if the rate is different
+      if (existing.rate !== newEntry.rate) {
+        existingMap.set(newEntry.date, newEntry);
+      }
+    } else {
+      // New date, add it
+      existingMap.set(newEntry.date, newEntry);
+    }
+  }
+
+  // Convert map back to array and sort by date ascending
+  return Array.from(existingMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 }
 
 function writeTsvFile(tsvPath: string, entries: CryptoRateEntry[]): void {
