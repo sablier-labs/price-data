@@ -76,8 +76,8 @@ function calculateDateRange(
   let toTimestamp: number;
 
   if (year === currentYear && month === currentMonth) {
-    // Current month: use yesterday at 00:00 UTC
-    const yesterday = now.subtract(1, "day").startOf("day");
+    // Current month: use end of yesterday (23:59:59 UTC) to capture full day
+    const yesterday = now.subtract(1, "day").endOf("day");
     toTimestamp = yesterday.unix();
   } else {
     // Past months: use first day of next month at 00:00 UTC
@@ -141,16 +141,14 @@ async function withRetry<T>(
 /* -------------------------------------------------------------------------- */
 
 function processCoinGeckoResponse(response: CoinGeckoRangeResponse): CryptoRateEntry[] {
-  // Process the response to extract first price for each date
+  // Process the response to extract last price (close) for each date
   const pricesByDate = new Map<string, number>();
 
   for (const [timestamp, price] of response.prices) {
     const date = dayjs(timestamp).utc().format("YYYY-MM-DD");
 
-    // Only keep the first price for each date
-    if (!pricesByDate.has(date)) {
-      pricesByDate.set(date, price);
-    }
+    // Keep the last price for each date (close price)
+    pricesByDate.set(date, price);
   }
 
   // Convert to array and sort by date
