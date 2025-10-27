@@ -178,7 +178,7 @@ async function fetchCoinGeckoPrices(
 
     const response = await axios.get<CoinGeckoRangeResponse>(url.toString(), {
       headers: {
-        "x-cg-demo-api-key": apiKey,
+        x_cg_demo_api_key: apiKey,
       },
     });
 
