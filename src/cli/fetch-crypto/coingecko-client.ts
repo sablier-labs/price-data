@@ -9,7 +9,7 @@ dayjs.extend(utc);
 /*                                  CONSTANTS                                 */
 /* -------------------------------------------------------------------------- */
 
-const COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3";
+const COINGECKO_BASE_URL = "https://pro-api.coingecko.com/api/v3";
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 1000; // 1 second base delay for exponential backoff
 const MIN_RETRY_WAIT = 5000; // 5 seconds minimum wait on rate limit
@@ -35,24 +35,15 @@ export type CryptoRateEntry = {
 const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Randomly selects and returns one of two CoinGecko API keys from environment variables.
- * @throws Error if either COINGECKO_API_KEY_1 or COINGECKO_API_KEY_2 is not set
- * @returns A randomly selected API key
+ * Returns the CoinGecko API key from environment variables.
+ * @throws Error if COINGECKO_API_KEY is not set
  */
 function getApiKey(): string {
-  const apiKey1 = process.env.COINGECKO_API_KEY_1;
-  const apiKey2 = process.env.COINGECKO_API_KEY_2;
-
-  if (!apiKey1) {
-    throw new Error("COINGECKO_API_KEY_1 environment variable is not set");
+  const apiKey = process.env.COINGECKO_API_KEY;
+  if (!apiKey) {
+    throw new Error("COINGECKO_API_KEY environment variable is not set");
   }
-
-  if (!apiKey2) {
-    throw new Error("COINGECKO_API_KEY_2 environment variable is not set");
-  }
-
-  // Randomly select one of the two keys
-  return Math.random() < 0.5 ? apiKey1 : apiKey2;
+  return apiKey;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -197,7 +188,7 @@ async function fetchCoinGeckoPrices(
 
     const response = await axios.get<CoinGeckoRangeResponse>(url.toString(), {
       headers: {
-        x_cg_demo_api_key: apiKey,
+        "x-cg-pro-api-key": apiKey,
       },
     });
 
