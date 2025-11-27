@@ -3,7 +3,7 @@ import "./node_modules/@sablier/devkit/just/base.just"
 import "./node_modules/@sablier/devkit/just/npm.just"
 import "./node_modules/@sablier/devkit/just/tsv.just"
 
-set dotenv-load := true
+set dotenv-load
 
 # ---------------------------------------------------------------------------- #
 #                                 DEPENDENCIES                                 #

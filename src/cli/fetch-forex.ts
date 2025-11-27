@@ -9,7 +9,7 @@ import utc from "dayjs/plugin/utc";
 import ora from "ora";
 import { toFloat } from "radash";
 import { fetchDailyForexRates } from "./fetch-forex/currencyfreaks-client";
-import { getExistingDatesForMonth, getForexTsvPath, updateTsvFile } from "./fetch-forex/tsv-utils";
+import { getForexTsvPath, updateTsvFile } from "./fetch-forex/tsv-utils";
 
 dayjs.extend(utc);
 
@@ -256,11 +256,8 @@ async function fetchForexRatesAction(options: FetchForexRatesOptions): Promise<v
       const spinner = ora(`Fetching ${yearStr}-${monthStr}`).start();
 
       try {
-        // Get existing dates for the target month
-        const existingDates = getExistingDatesForMonth(year, month);
-
         // Fetch daily rates from CurrencyFreaks API
-        const forexRates = await fetchDailyForexRates(year, month, existingDates);
+        const forexRates = await fetchDailyForexRates(year, month);
 
         // Update TSV file with new data
         const { newEntriesCount, tsvPath } = updateTsvFile(forexRates);
@@ -319,11 +316,8 @@ async function fetchForexRatesAction(options: FetchForexRatesOptions): Promise<v
   const spinner = ora(`Fetching GBP/USD forex rates for ${year}-${month}`).start();
 
   try {
-    // Get existing dates for the target month
-    const existingDates = getExistingDatesForMonth(yearNum, monthNum);
-
     // Fetch daily rates from CurrencyFreaks API
-    const forexRates = await fetchDailyForexRates(yearNum, monthNum, existingDates);
+    const forexRates = await fetchDailyForexRates(yearNum, monthNum);
 
     if (forexRates.length === 0) {
       spinner.info(`No new data to add for ${year}-${month}`);

@@ -11,7 +11,9 @@ dayjs.extend(utc);
 
 const COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3";
 const MAX_RETRIES = 5;
-const RETRY_DELAY = 1000; // 1 second
+const RETRY_DELAY = 1000; // 1 second base delay for exponential backoff
+const MIN_RETRY_WAIT = 5000; // 5 seconds minimum wait on rate limit
+const REQUEST_DELAY = 2000; // 2 seconds delay between requests to avoid rate limits
 
 /* -------------------------------------------------------------------------- */
 /*                                    TYPES                                   */
@@ -107,7 +109,10 @@ async function withRetry<T>(
         // Handle rate limiting
         if (status === 429 && attempt < maxRetries) {
           const retryAfter = error.response?.headers["retry-after"];
-          const waitTime = retryAfter ? Number(retryAfter) * 1000 : delayMs * 2 ** attempt;
+          const retryAfterMs = retryAfter ? Number(retryAfter) * 1000 : 0;
+          const exponentialBackoff = delayMs * 2 ** attempt;
+          // Use at least MIN_RETRY_WAIT to avoid instant retries when retry-after is 0
+          const waitTime = Math.max(MIN_RETRY_WAIT, retryAfterMs || exponentialBackoff);
 
           console.warn(
             `⚠️  Rate limited by CoinGecko (429). Retrying in ${waitTime}ms... (attempt ${attempt + 1}/${maxRetries + 1})`,
@@ -185,7 +190,12 @@ async function fetchCoinGeckoPrices(
     return processCoinGeckoResponse(response.data);
   };
 
-  return withRetry(fetchOperation);
+  const result = await withRetry(fetchOperation);
+
+  // Add delay between requests to proactively avoid rate limits
+  await delay(REQUEST_DELAY);
+
+  return result;
 }
 
 /* -------------------------------------------------------------------------- */

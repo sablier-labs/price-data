@@ -162,11 +162,7 @@ function getDatesInMonth(year: number, month: number): string[] {
 /*                              MAIN FUNCTIONS                                */
 /* -------------------------------------------------------------------------- */
 
-export async function fetchDailyForexRates(
-  year: number,
-  month: number,
-  existingDates: Set<string>,
-): Promise<ForexRateEntry[]> {
+export async function fetchDailyForexRates(year: number, month: number): Promise<ForexRateEntry[]> {
   const apiKey = getCurrencyFreaksApiKey();
   const allDatesInMonth = getDatesInMonth(year, month);
 

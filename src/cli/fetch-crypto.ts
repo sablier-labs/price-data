@@ -21,6 +21,7 @@ type FetchCryptoRatesOptions = {
   currency: string;
   month?: string;
   year?: string;
+  recent?: string;
 };
 
 type ProcessingResult = {
@@ -312,7 +313,7 @@ async function fetchCryptoRatesForCurrency(
 }
 
 async function fetchCryptoRatesAction(options: FetchCryptoRatesOptions): Promise<void> {
-  const { currency } = options;
+  const { currency, recent } = options;
 
   // Apply defaults for year and month
   const defaults = getDefaultYearMonth();
@@ -330,26 +331,95 @@ async function fetchCryptoRatesAction(options: FetchCryptoRatesOptions): Promise
   const currentMonth = now.month() + 1; // dayjs month() returns 0-11
 
   let months: number[];
+  let yearsToProcess: number[] = [yearNum];
+
   if (month === "all") {
-    const earliest = getEarliestAllowedDate();
+    // If --recent is specified, only fetch the last N months
+    if (recent) {
+      const recentMonths = Number.parseInt(recent, 10);
+      if (Number.isNaN(recentMonths) || recentMonths < 1) {
+        throw new Error("--recent must be a positive integer");
+      }
 
-    // Determine start month based on earliest allowed date
-    const startMonth = yearNum === earliest.year ? earliest.month : 1;
+      // Calculate the recent months working backwards from current month
+      const monthsToFetch: Array<{ month: number; year: number }> = [];
+      let targetYear = currentYear;
+      let targetMonth = currentMonth;
 
-    // Determine end month based on current date
-    const maxMonth = yearNum === currentYear ? currentMonth : 12;
+      for (let i = 0; i < recentMonths; i++) {
+        monthsToFetch.push({ month: targetMonth, year: targetYear });
+        targetMonth--;
+        if (targetMonth < 1) {
+          targetMonth = 12;
+          targetYear--;
+        }
+      }
 
-    // Calculate month range
-    const monthCount = maxMonth - startMonth + 1;
+      // Group by year and sort
+      const monthsByYear = new Map<number, number[]>();
+      for (const { year: y, month: m } of monthsToFetch) {
+        const existing = monthsByYear.get(y);
+        if (existing) {
+          existing.push(m);
+        } else {
+          monthsByYear.set(y, [m]);
+        }
+      }
 
-    if (monthCount <= 0) {
-      throw new Error(
-        `No valid months available for year ${yearNum}. ` +
-          `Valid range is ${earliest.year}-${earliest.month.toString().padStart(2, "0")} to ${currentYear}-${currentMonth.toString().padStart(2, "0")}`,
-      );
+      // Process each year's months
+      yearsToProcess = Array.from(monthsByYear.keys()).sort((a, b) => a - b);
+      const firstYearMonths = monthsByYear.get(yearsToProcess[0]);
+      months = firstYearMonths ? firstYearMonths.sort((a, b) => a - b) : [];
+
+      // If spanning multiple years, we'll handle this specially below
+      if (yearsToProcess.length > 1) {
+        // Flatten all year/month combinations for multi-year recent fetching
+        const allMonthsToFetch = monthsToFetch.sort((a, b) =>
+          a.year !== b.year ? a.year - b.year : a.month - b.month,
+        );
+
+        // Process all currency/month combinations
+        const currencies = currency === "all" ? Object.keys(coinConfigs) : [currency];
+
+        console.log(
+          chalk.cyan(
+            `🔍 Fetching prices for ${currencies.length === 1 ? currency : `all ${currencies.length} currencies`} for last ${recentMonths} months`,
+          ),
+        );
+        console.log();
+
+        const results: ProcessingResult[] = [];
+        for (const curr of currencies) {
+          for (const { year: y, month: m } of allMonthsToFetch) {
+            const result = await fetchCryptoRatesForCurrency(curr, y, m);
+            results.push(result);
+          }
+        }
+
+        displaySummaryTable(results);
+        return;
+      }
+    } else {
+      const earliest = getEarliestAllowedDate();
+
+      // Determine start month based on earliest allowed date
+      const startMonth = yearNum === earliest.year ? earliest.month : 1;
+
+      // Determine end month based on current date
+      const maxMonth = yearNum === currentYear ? currentMonth : 12;
+
+      // Calculate month range
+      const monthCount = maxMonth - startMonth + 1;
+
+      if (monthCount <= 0) {
+        throw new Error(
+          `No valid months available for year ${yearNum}. ` +
+            `Valid range is ${earliest.year}-${earliest.month.toString().padStart(2, "0")} to ${currentYear}-${currentMonth.toString().padStart(2, "0")}`,
+        );
+      }
+
+      months = Array.from({ length: monthCount }, (_, i) => startMonth + i);
     }
-
-    months = Array.from({ length: monthCount }, (_, i) => startMonth + i);
   } else {
     months = [toFloat(month)];
   }
@@ -403,6 +473,10 @@ function createFetchCryptoRatesCommand(): Command {
     .option(
       "--month <MM>",
       "Month in MM format (01-12) or 'all' for all months (defaults to current month)",
+    )
+    .option(
+      "--recent <N>",
+      "Only fetch the most recent N months (use with --month all to limit API calls)",
     )
     .action(async (options: FetchCryptoRatesOptions) => {
       await fetchCryptoRatesAction(options);
