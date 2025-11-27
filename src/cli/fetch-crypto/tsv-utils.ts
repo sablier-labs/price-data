@@ -169,3 +169,55 @@ export function updateTsvFile(
     tsvPath,
   };
 }
+
+export function updateTsvFileByDateRange(
+  currency: string,
+  newEntries: CryptoRateEntry[],
+): {
+  newEntriesCount: number;
+  tsvPath: string;
+} {
+  ensureCryptoDirectoryExists();
+
+  const tsvPath = getCryptoTsvPath(currency);
+  const { entries: existingEntries } = readExistingTsvData(currency);
+
+  if (newEntries.length === 0) {
+    return { newEntriesCount: 0, tsvPath };
+  }
+
+  // Merge all entries without month filtering
+  const existingMap = new Map<string, CryptoRateEntry>();
+  for (const entry of existingEntries) {
+    existingMap.set(entry.date, entry);
+  }
+
+  let changedCount = 0;
+  for (const newEntry of newEntries) {
+    const existing = existingMap.get(newEntry.date);
+    if (existing) {
+      if (existing.price !== newEntry.price) {
+        existingMap.set(newEntry.date, newEntry);
+        changedCount++;
+      }
+    } else {
+      existingMap.set(newEntry.date, newEntry);
+      changedCount++;
+    }
+  }
+
+  if (changedCount === 0) {
+    return { newEntriesCount: 0, tsvPath };
+  }
+
+  const mergedEntries = Array.from(existingMap.values()).sort((a, b) =>
+    a.date.localeCompare(b.date),
+  );
+
+  writeTsvFile(tsvPath, mergedEntries);
+
+  return {
+    newEntriesCount: changedCount,
+    tsvPath,
+  };
+}

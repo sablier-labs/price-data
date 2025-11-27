@@ -90,6 +90,20 @@ function calculateDateRange(
   return { fromTimestamp, toTimestamp };
 }
 
+export function calculateDayRange(days: number): { fromTimestamp: number; toTimestamp: number } {
+  const now = dayjs.utc();
+
+  // Start from N days ago at 00:00 UTC
+  const fromDate = now.subtract(days, "day").startOf("day");
+  const fromTimestamp = fromDate.unix();
+
+  // End at yesterday 23:59:59 UTC (today's data isn't complete yet)
+  const toDate = now.subtract(1, "day").endOf("day");
+  const toTimestamp = toDate.unix();
+
+  return { fromTimestamp, toTimestamp };
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                RETRY LOGIC                                 */
 /* -------------------------------------------------------------------------- */
@@ -211,5 +225,13 @@ export async function fetchDailyCryptoRates(
   const { fromTimestamp, toTimestamp } = calculateDateRange(year, month);
 
   // Fetch prices from CoinGecko
+  return fetchCoinGeckoPrices(currency, fromTimestamp, toTimestamp);
+}
+
+export async function fetchDailyCryptoRatesByRange(
+  currency: string,
+  fromTimestamp: number,
+  toTimestamp: number,
+): Promise<CryptoRateEntry[]> {
   return fetchCoinGeckoPrices(currency, fromTimestamp, toTimestamp);
 }
