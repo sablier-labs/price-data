@@ -25,7 +25,7 @@ jobs:
       - name: Fetch cryptocurrency prices
         env:
           COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
-        run: just fetch-crypto all --recent-days 3
+        run: just fetch-crypto-recent all
 
       - name: Fetch forex rates
         env:

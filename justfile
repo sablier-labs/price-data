@@ -31,12 +31,17 @@ YEAR := ```
 # ---------------------------------------------------------------------------- #
 
 # Fetch cryptocurrency prices from CoinGecko
-@fetch-crypto currency year=YEAR month="all" *args:
+@fetch-crypto currency year=YEAR month="all":
     na tsx src/cli/fetch-crypto.ts \
         --currency {{ currency }} \
         --year {{ year }} \
-        --month {{ month }} \
-        {{ args }}
+        --month {{ month }}
+
+# Fetch cryptocurrency prices for recent days (for cron jobs)
+@fetch-crypto-recent currency days="3":
+    na tsx src/cli/fetch-crypto.ts \
+        --currency {{ currency }} \
+        --recent-days {{ days }}
 
 # Fetch daily GBP/USD forex rates from CurrencyFreaks
 @fetch-forex year=YEAR month="all" *args:
@@ -47,6 +52,5 @@ YEAR := ```
 
 # Check TSV files
 [group("checks")]
-[script]
 tsv-check:
     just _tsv-check "{crypto,forex}/*.tsv"
