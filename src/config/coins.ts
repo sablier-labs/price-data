@@ -32,8 +32,8 @@ export const coinConfigs: Record<string, CoinConfig> = {
   [chains.mainnet.nativeCurrency.symbol]: {
     coinGeckoId: chains.mainnet.nativeCurrency.coinGeckoId,
   },
-  MON: {
-    coinGeckoId: "monad",
+  [chains.monad.nativeCurrency.symbol]: {
+    coinGeckoId: chains.monad.nativeCurrency.coinGeckoId,
   },
   OP: {
     coinGeckoId: "optimism",
