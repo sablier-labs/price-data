@@ -71,4 +71,7 @@ export const coinConfigs: Record<string, CoinConfig> = {
   [chains.xdc.nativeCurrency.symbol]: {
     coinGeckoId: chains.xdc.nativeCurrency.coinGeckoId,
   },
+  ZK: {
+    coinGeckoId: "zksync",
+  },
 };

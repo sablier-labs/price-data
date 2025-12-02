@@ -8,6 +8,8 @@ model: sonnet
 
 - Existing currencies: !`ls crypto/*.tsv | xargs -I {} basename {} _USD.tsv | sort`
 - Coin config: !`cat src/config/coins.ts`
+- Available chains (for native currencies):
+  !`node -e "const {chains}=require('sablier'); console.log(Object.keys(chains).sort().join(', '))"`
 - Arguments: $ARGUMENTS
 
 ## Task
@@ -53,7 +55,20 @@ Edit `src/config/coins.ts` to add the new coin entry.
 - Find the correct position to maintain alphabetical order
 - Insert after the appropriate entry
 
-**Add entry:**
+**Check if this is a chain's native currency:**
+
+IF this is a native token for a chain in the `sablier` package (e.g., MON for Monad, S for Sonic):
+
+- Check if `chains.{chainName}.nativeCurrency` exists with matching symbol and coinGeckoId
+- IF available, use the dynamic import pattern:
+
+```typescript
+[chains.{chainName}.nativeCurrency.symbol]: {
+  coinGeckoId: chains.{chainName}.nativeCurrency.coinGeckoId,
+},
+```
+
+ELSE (for tokens like AAVE, COMP, USDC that aren't chain native currencies):
 
 ```typescript
 {SYMBOL}: {
