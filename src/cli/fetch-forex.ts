@@ -5,11 +5,11 @@ import chalk from "chalk";
 import Table from "cli-table3";
 import { Command } from "commander";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
+import utc from "dayjs/plugin/utc.js";
 import ora from "ora";
 import { toFloat } from "radash";
-import { fetchDailyForexRates } from "./fetch-forex/currencyfreaks-client";
-import { getForexTsvPath, updateTsvFile } from "./fetch-forex/tsv-utils";
+import { fetchDailyForexRates } from "./fetch-forex/currencyfreaks-client.js";
+import { getForexTsvPath, updateTsvFile } from "./fetch-forex/tsv-utils.js";
 
 dayjs.extend(utc);
 
@@ -155,7 +155,7 @@ function displaySummaryTable(results: ProcessingResult[]): void {
   console.log(
     `${chalk.green("✅ Success:")} ${successful.length} | ` +
       `${chalk.yellow("⏭️  Skipped:")} ${skipped.length} | ` +
-      `${chalk.red("❌ Failed:")} ${failed.length}`,
+      `${chalk.red("❌ Failed:")} ${failed.length}`
   );
 
   // Display aggregated results table
@@ -234,16 +234,16 @@ async function fetchForexRatesAction(options: FetchForexRatesOptions): Promise<v
       allMonths = getAllMonthsForYear(yearNum);
       console.log(
         chalk.cyan(
-          `🔍 Fetching GBP/USD forex rates for all months in ${yearNum} (${allMonths.length} months)\n`,
-        ),
+          `🔍 Fetching GBP/USD forex rates for all months in ${yearNum} (${allMonths.length} months)\n`
+        )
       );
     } else {
       // Fetch all months from MIN_YEAR to current
       allMonths = getAllMonthsSinceMinYear();
       console.log(
         chalk.cyan(
-          `🔍 Fetching GBP/USD forex rates for all months (${allMonths.length} months total)\n`,
-        ),
+          `🔍 Fetching GBP/USD forex rates for all months (${allMonths.length} months total)\n`
+        )
       );
     }
 
@@ -331,7 +331,7 @@ async function fetchForexRatesAction(options: FetchForexRatesOptions): Promise<v
     const { tsvPath } = updateTsvFile(forexRates);
 
     spinner.succeed(
-      `Fetched GBP/USD forex rates for ${year}-${month} (${forexRates.length} new entries)`,
+      `Fetched GBP/USD forex rates for ${year}-${month} (${forexRates.length} new entries)`
     );
 
     // Print the full clickable path on a new line with colorized output
@@ -356,7 +356,7 @@ function createFetchForexRatesCommand(): Command {
     .option("--year <YYYY>", "Year in YYYY format (defaults to current year)")
     .option(
       "--month <MM>",
-      'Month in MM format (01-12) or "all" to fetch all months. When "all" is used with --year, fetches all months in that year. Without --year, fetches all months from 2022 to present. Defaults to current month.',
+      'Month in MM format (01-12) or "all" to fetch all months. When "all" is used with --year, fetches all months in that year. Without --year, fetches all months from 2022 to present. Defaults to current month.'
     )
     .action(async (options: FetchForexRatesOptions) => {
       await fetchForexRatesAction(options);

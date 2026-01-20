@@ -67,7 +67,7 @@ export function readExistingTsvData(currency: string): TsvData {
 export function getExistingDatesForMonth(
   currency: string,
   year: number,
-  month: number,
+  month: number
 ): Set<string> {
   const { existingDates } = readExistingTsvData(currency);
   const targetMonthPrefix = `${year}-${month.toString().padStart(2, "0")}`;
@@ -90,7 +90,7 @@ export function getExistingDatesForMonth(
 function mergeEntries(
   existingEntries: CryptoRateEntry[],
   newEntries: CryptoRateEntry[],
-  targetMonth: string,
+  targetMonth: string
 ): { mergedEntries: CryptoRateEntry[]; changedCount: number } {
   // Build a map of all existing entries by date for O(1) lookup
   const existingMap = new Map<string, CryptoRateEntry>();
@@ -123,7 +123,7 @@ function mergeEntries(
 
   // Convert map back to array and sort by date ascending
   const mergedEntries = Array.from(existingMap.values()).sort((a, b) =>
-    a.date.localeCompare(b.date),
+    a.date.localeCompare(b.date)
   );
 
   return { changedCount, mergedEntries };
@@ -141,7 +141,7 @@ export function updateTsvFile(
   currency: string,
   newEntries: CryptoRateEntry[],
   year: number,
-  month: number,
+  month: number
 ): {
   newEntriesCount: number;
   tsvPath: string;
@@ -172,7 +172,7 @@ export function updateTsvFile(
 
 export function updateTsvFileByDateRange(
   currency: string,
-  newEntries: CryptoRateEntry[],
+  newEntries: CryptoRateEntry[]
 ): {
   newEntriesCount: number;
   tsvPath: string;
@@ -211,7 +211,7 @@ export function updateTsvFileByDateRange(
   }
 
   const mergedEntries = Array.from(existingMap.values()).sort((a, b) =>
-    a.date.localeCompare(b.date),
+    a.date.localeCompare(b.date)
   );
 
   writeTsvFile(tsvPath, mergedEntries);

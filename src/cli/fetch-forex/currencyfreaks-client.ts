@@ -2,7 +2,7 @@ import axios from "axios";
 import axiosRetry from "axios-retry";
 import chalk from "chalk";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
+import utc from "dayjs/plugin/utc.js";
 
 dayjs.extend(utc);
 
@@ -50,8 +50,8 @@ axiosRetry(axiosInstance, {
     const delayMs = RETRY_DELAY_BASE * 2 ** (retryCount - 1);
     console.warn(
       chalk.yellow(
-        `⚠️  Retry attempt ${retryCount}/${MAX_RETRIES} after ${delayMs}ms. Error: ${error.message}`,
-      ),
+        `⚠️  Retry attempt ${retryCount}/${MAX_RETRIES} after ${delayMs}ms. Error: ${error.message}`
+      )
     );
   },
   retries: MAX_RETRIES,
@@ -103,7 +103,7 @@ async function fetchRateForDate(apiKey: string, date: string): Promise<number | 
     const gbpToUsdRate = 1 / usdToGbpRate;
 
     // Truncate to 4 decimal places
-    const truncatedRate = Math.round(gbpToUsdRate * 10000) / 10000;
+    const truncatedRate = Math.round(gbpToUsdRate * 10_000) / 10_000;
 
     return truncatedRate;
   } catch (error) {

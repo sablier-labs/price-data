@@ -4,16 +4,16 @@ import chalk from "chalk";
 import Table from "cli-table3";
 import { Command } from "commander";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
+import utc from "dayjs/plugin/utc.js";
 import ora from "ora";
 import { toFloat } from "radash";
-import { coinConfigs } from "../config/coins";
+import { coinConfigs } from "../config/coins.js";
 import {
   calculateDayRange,
   fetchDailyCryptoRates,
   fetchDailyCryptoRatesByRange,
-} from "./fetch-crypto/coingecko-client";
-import { updateTsvFile, updateTsvFileByDateRange } from "./fetch-crypto/tsv-utils";
+} from "./fetch-crypto/coingecko-client.js";
+import { updateTsvFile, updateTsvFileByDateRange } from "./fetch-crypto/tsv-utils.js";
 
 dayjs.extend(utc);
 
@@ -37,6 +37,22 @@ type ProcessingResult = {
   error?: string;
   tsvPath: string;
 };
+
+type AggregatedResult = {
+  currency: string;
+  months: string[];
+  totalNewEntries: number;
+  hasSuccess: boolean;
+  tsvPath: string;
+};
+
+type ResultGroups = {
+  successful: ProcessingResult[];
+  skipped: ProcessingResult[];
+  failed: ProcessingResult[];
+};
+
+type CliTable = InstanceType<typeof Table>;
 
 /* -------------------------------------------------------------------------- */
 /*                                  CONSTANTS                                 */
@@ -80,7 +96,7 @@ function validateCurrency(currency: string): void {
   if (!coinConfigs[currency]) {
     const supportedCurrencies = Object.keys(coinConfigs).join(", ");
     throw new Error(
-      `Currency "${currency}" is not supported. Available currencies: ${supportedCurrencies}, all`,
+      `Currency "${currency}" is not supported. Available currencies: ${supportedCurrencies}, all`
     );
   }
 }
@@ -118,7 +134,7 @@ function validateDate(year: string, month: string): void {
   if (requestedDate.isBefore(earliestDate)) {
     throw new Error(
       `Cannot fetch prices more than ${MAX_DAYS_IN_PAST} days in the past. ` +
-        `Earliest allowed: ${earliest.year}-${earliest.month.toString().padStart(2, "0")}`,
+        `Earliest allowed: ${earliest.year}-${earliest.month.toString().padStart(2, "0")}`
     );
   }
 
@@ -136,128 +152,150 @@ function validateDate(year: string, month: string): void {
 /*                              MAIN FUNCTIONS                                */
 /* -------------------------------------------------------------------------- */
 
+function groupResults(results: ProcessingResult[]): ResultGroups {
+  return {
+    failed: results.filter((result) => result.status === "error"),
+    skipped: results.filter((result) => result.status === "skipped"),
+    successful: results.filter((result) => result.status === "success"),
+  };
+}
+
+function logSummaryHeader(): void {
+  console.log();
+  console.log(chalk.cyan.bold("=".repeat(80)));
+  console.log(chalk.cyan.bold("📊 PROCESSING SUMMARY"));
+  console.log(chalk.cyan.bold("=".repeat(80)));
+}
+
+function logSummaryCounts(groups: ResultGroups): void {
+  console.log(
+    `${chalk.green("✅ Success:")} ${groups.successful.length} | ` +
+      `${chalk.yellow("⏭️  Skipped:")} ${groups.skipped.length} | ` +
+      `${chalk.red("❌ Failed:")} ${groups.failed.length}`
+  );
+}
+
+function aggregateResults(results: ProcessingResult[]): AggregatedResult[] {
+  const aggregatedResults = new Map<string, AggregatedResult>();
+
+  for (const result of results) {
+    if (result.status === "error") {
+      continue;
+    }
+
+    const existing = aggregatedResults.get(result.currency);
+    const yearMonth = `${result.year}-${result.month}`;
+
+    if (existing) {
+      existing.months.push(yearMonth);
+      existing.totalNewEntries += result.newEntriesCount;
+      existing.hasSuccess = existing.hasSuccess || result.status === "success";
+      continue;
+    }
+
+    aggregatedResults.set(result.currency, {
+      currency: result.currency,
+      hasSuccess: result.status === "success",
+      months: [yearMonth],
+      totalNewEntries: result.newEntriesCount,
+      tsvPath: result.tsvPath,
+    });
+  }
+
+  return Array.from(aggregatedResults.values());
+}
+
+function createSummaryTable(): CliTable {
+  return new Table({
+    head: [
+      chalk.cyan("Currency"),
+      chalk.cyan("Period"),
+      chalk.cyan("New Entries"),
+      chalk.cyan("Status"),
+      chalk.cyan("File Path"),
+    ],
+    style: {
+      border: ["cyan"],
+      head: ["cyan"],
+    },
+  });
+}
+
+function getPeriodDisplay(months: string[]): string {
+  const sortedMonths = months.slice().sort();
+  if (sortedMonths.length === 1) {
+    return sortedMonths[0];
+  }
+
+  const lastMonth = sortedMonths.at(-1) ?? sortedMonths[0];
+  return `${sortedMonths[0]} to ${lastMonth}`;
+}
+
+function renderAggregatedResults(results: ProcessingResult[]): void {
+  console.log();
+
+  const aggregatedResults = aggregateResults(results);
+  const table = createSummaryTable();
+
+  const sortedResults = aggregatedResults.sort((a, b) => a.currency.localeCompare(b.currency));
+
+  for (const result of sortedResults) {
+    const statusColor = result.hasSuccess ? chalk.green : chalk.yellow;
+    const statusText = result.hasSuccess ? "Updated" : "No changes";
+    const periodDisplay = getPeriodDisplay(result.months);
+
+    table.push([
+      chalk.white(result.currency),
+      chalk.white(periodDisplay),
+      chalk.white(result.totalNewEntries.toString()),
+      statusColor(statusText),
+      chalk.gray(result.tsvPath),
+    ]);
+  }
+
+  console.log(table.toString());
+}
+
+function renderErrorTable(failed: ProcessingResult[]): void {
+  console.log();
+  console.log(chalk.red.bold("❌ ERRORS"));
+
+  const errorTable = new Table({
+    head: [chalk.red("Currency"), chalk.red("Year-Month"), chalk.red("Error")],
+    style: {
+      border: ["red"],
+      head: ["red"],
+    },
+  });
+
+  for (const result of failed) {
+    errorTable.push([
+      chalk.white(result.currency),
+      chalk.white(`${result.year}-${result.month}`),
+      chalk.gray(result.error || "Unknown error"),
+    ]);
+  }
+
+  console.log(errorTable.toString());
+}
+
 function displaySummaryTable(results: ProcessingResult[]): void {
   if (results.length === 0) {
     return;
   }
 
-  console.log();
-  console.log(chalk.cyan.bold("=".repeat(80)));
-  console.log(chalk.cyan.bold("📊 PROCESSING SUMMARY"));
-  console.log(chalk.cyan.bold("=".repeat(80)));
-
-  // Count results by status
-  const successful = results.filter((r) => r.status === "success");
-  const skipped = results.filter((r) => r.status === "skipped");
-  const failed = results.filter((r) => r.status === "error");
-
-  console.log(
-    `${chalk.green("✅ Success:")} ${successful.length} | ` +
-      `${chalk.yellow("⏭️  Skipped:")} ${skipped.length} | ` +
-      `${chalk.red("❌ Failed:")} ${failed.length}`,
-  );
+  logSummaryHeader();
+  const groups = groupResults(results);
+  logSummaryCounts(groups);
 
   // Display aggregated results table
-  if (successful.length > 0 || skipped.length > 0) {
-    console.log();
-
-    // Aggregate results by currency
-    const aggregatedResults = new Map<
-      string,
-      {
-        currency: string;
-        months: string[];
-        totalNewEntries: number;
-        hasSuccess: boolean;
-        tsvPath: string;
-      }
-    >();
-
-    for (const result of results) {
-      if (result.status === "error") continue;
-
-      const existing = aggregatedResults.get(result.currency);
-      const yearMonth = `${result.year}-${result.month}`;
-
-      if (existing) {
-        existing.months.push(yearMonth);
-        existing.totalNewEntries += result.newEntriesCount;
-        existing.hasSuccess = existing.hasSuccess || result.status === "success";
-      } else {
-        aggregatedResults.set(result.currency, {
-          currency: result.currency,
-          hasSuccess: result.status === "success",
-          months: [yearMonth],
-          totalNewEntries: result.newEntriesCount,
-          tsvPath: result.tsvPath,
-        });
-      }
-    }
-
-    const table = new Table({
-      head: [
-        chalk.cyan("Currency"),
-        chalk.cyan("Period"),
-        chalk.cyan("New Entries"),
-        chalk.cyan("Status"),
-        chalk.cyan("File Path"),
-      ],
-      style: {
-        border: ["cyan"],
-        head: ["cyan"],
-      },
-    });
-
-    // Sort by currency name
-    const sortedResults = Array.from(aggregatedResults.values()).sort((a, b) =>
-      a.currency.localeCompare(b.currency),
-    );
-
-    for (const result of sortedResults) {
-      const statusColor = result.hasSuccess ? chalk.green : chalk.yellow;
-      const statusText = result.hasSuccess ? "Updated" : "No changes";
-
-      // Determine period display
-      const sortedMonths = result.months.sort();
-      const periodDisplay =
-        sortedMonths.length === 1
-          ? sortedMonths[0]
-          : `${sortedMonths[0]} to ${sortedMonths[sortedMonths.length - 1]}`;
-
-      table.push([
-        chalk.white(result.currency),
-        chalk.white(periodDisplay),
-        chalk.white(result.totalNewEntries.toString()),
-        statusColor(statusText),
-        chalk.gray(result.tsvPath),
-      ]);
-    }
-
-    console.log(table.toString());
+  if (groups.successful.length > 0 || groups.skipped.length > 0) {
+    renderAggregatedResults(results);
   }
 
   // Display errors table
-  if (failed.length > 0) {
-    console.log();
-    console.log(chalk.red.bold("❌ ERRORS"));
-
-    const errorTable = new Table({
-      head: [chalk.red("Currency"), chalk.red("Year-Month"), chalk.red("Error")],
-      style: {
-        border: ["red"],
-        head: ["red"],
-      },
-    });
-
-    for (const result of failed) {
-      errorTable.push([
-        chalk.white(result.currency),
-        chalk.white(`${result.year}-${result.month}`),
-        chalk.gray(result.error || "Unknown error"),
-      ]);
-    }
-
-    console.log(errorTable.toString());
+  if (groups.failed.length > 0) {
+    renderErrorTable(groups.failed);
   }
 
   console.log();
@@ -266,7 +304,7 @@ function displaySummaryTable(results: ProcessingResult[]): void {
 async function fetchCryptoRatesForCurrency(
   currency: string,
   year: number,
-  month: number,
+  month: number
 ): Promise<ProcessingResult> {
   const yearStr = year.toString();
   const monthStr = month.toString().padStart(2, "0");
@@ -282,7 +320,7 @@ async function fetchCryptoRatesForCurrency(
 
     if (newEntriesCount > 0) {
       spinner.succeed(
-        `Fetched ${currency} prices for ${yearStr}-${monthStr} (${newEntriesCount} new entries)`,
+        `Fetched ${currency} prices for ${yearStr}-${monthStr} (${newEntriesCount} new entries)`
       );
     } else {
       spinner.info(`No new data for ${currency} ${yearStr}-${monthStr}`);
@@ -313,7 +351,7 @@ async function fetchCryptoRatesForCurrency(
 
 async function fetchCryptoRatesForDayRange(
   currency: string,
-  days: number,
+  days: number
 ): Promise<ProcessingResult> {
   const spinner = ora(`Fetching ${currency} prices for last ${days} days`).start();
 
@@ -324,7 +362,7 @@ async function fetchCryptoRatesForDayRange(
 
     if (newEntriesCount > 0) {
       spinner.succeed(
-        `Fetched ${currency} prices for last ${days} days (${newEntriesCount} new entries)`,
+        `Fetched ${currency} prices for last ${days} days (${newEntriesCount} new entries)`
       );
     } else {
       spinner.info(`No new data for ${currency} (last ${days} days)`);
@@ -353,43 +391,146 @@ async function fetchCryptoRatesForDayRange(
   }
 }
 
+function resolveCurrencies(currency: string): string[] {
+  return currency === "all" ? Object.keys(coinConfigs) : [currency];
+}
+
+function parseRecentDays(recentDays?: string): number | null {
+  if (!recentDays) {
+    return null;
+  }
+
+  const days = Number.parseInt(recentDays, 10);
+  if (Number.isNaN(days) || days < 1) {
+    throw new Error("--recent-days must be a positive integer");
+  }
+
+  return days;
+}
+
+async function handleRecentDaysFetch(
+  currencies: string[],
+  currencyLabel: string,
+  days: number
+): Promise<void> {
+  const currencyScope =
+    currencies.length === 1 ? currencyLabel : `all ${currencies.length} currencies`;
+
+  console.log(chalk.cyan(`🔍 Fetching prices for ${currencyScope} for last ${days} days`));
+  console.log();
+
+  const results: ProcessingResult[] = [];
+  for (const curr of currencies) {
+    const result = await fetchCryptoRatesForDayRange(curr, days);
+    results.push(result);
+  }
+
+  displaySummaryTable(results);
+}
+
+function applyDefaultYearMonth(options: FetchCryptoRatesOptions): { month: string; year: string } {
+  const defaults = getDefaultYearMonth();
+  return {
+    month: options.month || defaults.month,
+    year: options.year || defaults.year,
+  };
+}
+
+function buildMonthRange(startMonth: number, endMonth: number): number[] {
+  const monthCount = endMonth - startMonth + 1;
+  if (monthCount <= 0) {
+    throw new Error("No valid months available for the requested year");
+  }
+
+  return Array.from({ length: monthCount }, (_, i) => startMonth + i);
+}
+
+function resolveMonths(yearNum: number, month: string): number[] {
+  if (month !== "all") {
+    return [toFloat(month)];
+  }
+
+  const earliest = getEarliestAllowedDate();
+  const now = dayjs.utc();
+  const currentYear = now.year();
+  const currentMonth = now.month() + 1; // dayjs month() returns 0-11
+
+  const startMonth = yearNum === earliest.year ? earliest.month : 1;
+  const maxMonth = yearNum === currentYear ? currentMonth : 12;
+
+  if (maxMonth - startMonth + 1 <= 0) {
+    throw new Error(
+      `No valid months available for year ${yearNum}. ` +
+        `Valid range is ${earliest.year}-${earliest.month.toString().padStart(2, "0")} to ${currentYear}-${currentMonth.toString().padStart(2, "0")}`
+    );
+  }
+
+  return buildMonthRange(startMonth, maxMonth);
+}
+
+function logFetchScope(
+  currency: string,
+  month: string,
+  currencies: string[],
+  months: number[]
+): void {
+  if (currency === "all" && month === "all") {
+    console.log(
+      chalk.cyan(
+        `🔍 Fetching prices for all ${currencies.length} currencies across ${months.length} months`
+      )
+    );
+    console.log();
+    return;
+  }
+
+  if (currency === "all") {
+    console.log(chalk.cyan(`🔍 Fetching prices for all ${currencies.length} currencies`));
+    console.log();
+    return;
+  }
+
+  if (month === "all") {
+    console.log(chalk.cyan(`🔍 Fetching ${currency} prices for ${months.length} months`));
+    console.log();
+  }
+}
+
+async function fetchMonthlyResults(
+  currencies: string[],
+  months: number[],
+  yearNum: number
+): Promise<ProcessingResult[]> {
+  const results: ProcessingResult[] = [];
+
+  for (const curr of currencies) {
+    for (const month of months) {
+      const result = await fetchCryptoRatesForCurrency(curr, yearNum, month);
+      results.push(result);
+    }
+  }
+
+  return results;
+}
+
 async function fetchCryptoRatesAction(options: FetchCryptoRatesOptions): Promise<void> {
-  const { currency, recentDays } = options;
+  const { currency } = options;
 
   // Validate currency
   validateCurrency(currency);
 
   // Determine which currencies to process
-  const currencies = currency === "all" ? Object.keys(coinConfigs) : [currency];
+  const currencies = resolveCurrencies(currency);
 
   // Handle --recent-days flag (simplified day-based fetching)
-  if (recentDays) {
-    const days = Number.parseInt(recentDays, 10);
-    if (Number.isNaN(days) || days < 1) {
-      throw new Error("--recent-days must be a positive integer");
-    }
-
-    console.log(
-      chalk.cyan(
-        `🔍 Fetching prices for ${currencies.length === 1 ? currency : `all ${currencies.length} currencies`} for last ${days} days`,
-      ),
-    );
-    console.log();
-
-    const results: ProcessingResult[] = [];
-    for (const curr of currencies) {
-      const result = await fetchCryptoRatesForDayRange(curr, days);
-      results.push(result);
-    }
-
-    displaySummaryTable(results);
+  const recentDays = parseRecentDays(options.recentDays);
+  if (recentDays !== null) {
+    await handleRecentDaysFetch(currencies, currency, recentDays);
     return;
   }
 
   // Apply defaults for year and month
-  const defaults = getDefaultYearMonth();
-  const month = options.month || defaults.month;
-  const year = options.year || defaults.year;
+  const { month, year } = applyDefaultYearMonth(options);
 
   // Validate inputs
   validateDate(year, month);
@@ -397,60 +538,13 @@ async function fetchCryptoRatesAction(options: FetchCryptoRatesOptions): Promise
   const yearNum = toFloat(year);
 
   // Determine which months to process
-  const now = dayjs.utc();
-  const currentYear = now.year();
-  const currentMonth = now.month() + 1; // dayjs month() returns 0-11
-
-  let months: number[];
-
-  if (month === "all") {
-    const earliest = getEarliestAllowedDate();
-
-    // Determine start month based on earliest allowed date
-    const startMonth = yearNum === earliest.year ? earliest.month : 1;
-
-    // Determine end month based on current date
-    const maxMonth = yearNum === currentYear ? currentMonth : 12;
-
-    // Calculate month range
-    const monthCount = maxMonth - startMonth + 1;
-
-    if (monthCount <= 0) {
-      throw new Error(
-        `No valid months available for year ${yearNum}. ` +
-          `Valid range is ${earliest.year}-${earliest.month.toString().padStart(2, "0")} to ${currentYear}-${currentMonth.toString().padStart(2, "0")}`,
-      );
-    }
-
-    months = Array.from({ length: monthCount }, (_, i) => startMonth + i);
-  } else {
-    months = [toFloat(month)];
-  }
+  const months = resolveMonths(yearNum, month);
 
   // Show initial log message
-  if (currency === "all" && month === "all") {
-    console.log(
-      chalk.cyan(
-        `🔍 Fetching prices for all ${currencies.length} currencies across ${months.length} months`,
-      ),
-    );
-    console.log();
-  } else if (currency === "all") {
-    console.log(chalk.cyan(`🔍 Fetching prices for all ${currencies.length} currencies`));
-    console.log();
-  } else if (month === "all") {
-    console.log(chalk.cyan(`🔍 Fetching ${currency} prices for ${months.length} months`));
-    console.log();
-  }
+  logFetchScope(currency, month, currencies, months);
 
   // Process all currency/month combinations
-  const results: ProcessingResult[] = [];
-  for (let i = 0; i < currencies.length; i++) {
-    for (let j = 0; j < months.length; j++) {
-      const result = await fetchCryptoRatesForCurrency(currencies[i], yearNum, months[j]);
-      results.push(result);
-    }
-  }
+  const results = await fetchMonthlyResults(currencies, months, yearNum);
 
   // Display summary table
   displaySummaryTable(results);
@@ -467,16 +561,16 @@ function createFetchCryptoRatesCommand(): Command {
     .description("Fetch historical crypto prices from CoinGecko (up to 365 days in the past)")
     .requiredOption(
       "--currency <symbol>",
-      "Currency symbol (e.g., ETH, CHZ) or 'all' for all currencies",
+      "Currency symbol (e.g., ETH, CHZ) or 'all' for all currencies"
     )
     .option("--year <YYYY>", "Year in YYYY format (defaults to current year)")
     .option(
       "--month <MM>",
-      "Month in MM format (01-12) or 'all' for all months (defaults to current month)",
+      "Month in MM format (01-12) or 'all' for all months (defaults to current month)"
     )
     .option(
       "--recent-days <N>",
-      "Only fetch prices for the most recent N days (ideal for daily cron jobs)",
+      "Only fetch prices for the most recent N days (ideal for daily cron jobs)"
     )
     .action(async (options: FetchCryptoRatesOptions) => {
       await fetchCryptoRatesAction(options);

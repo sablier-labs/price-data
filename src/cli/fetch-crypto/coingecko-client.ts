@@ -1,7 +1,7 @@
 import axios from "axios";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { coinConfigs } from "../../config/coins";
+import utc from "dayjs/plugin/utc.js";
+import { coinConfigs } from "../../config/coins.js";
 
 dayjs.extend(utc);
 
@@ -20,7 +20,7 @@ const REQUEST_DELAY = 2000; // 2 seconds delay between requests to avoid rate li
 /* -------------------------------------------------------------------------- */
 
 type CoinGeckoRangeResponse = {
-  prices: Array<[number, number]>; // [timestamp, price]
+  prices: [number, number][]; // [timestamp, price]
 };
 
 export type CryptoRateEntry = {
@@ -52,7 +52,7 @@ function getApiKey(): string {
 
 function calculateDateRange(
   year: number,
-  month: number,
+  month: number
 ): { fromTimestamp: number; toTimestamp: number } {
   const now = dayjs.utc();
   const currentYear = now.year();
@@ -102,7 +102,7 @@ export function calculateDayRange(days: number): { fromTimestamp: number; toTime
 async function withRetry<T>(
   operation: () => Promise<T>,
   maxRetries: number = MAX_RETRIES,
-  delayMs: number = RETRY_DELAY,
+  delayMs: number = RETRY_DELAY
 ): Promise<T> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
@@ -120,7 +120,7 @@ async function withRetry<T>(
           const waitTime = Math.max(MIN_RETRY_WAIT, retryAfterMs || exponentialBackoff);
 
           console.warn(
-            `⚠️  Rate limited by CoinGecko (429). Retrying in ${waitTime}ms... (attempt ${attempt + 1}/${maxRetries + 1})`,
+            `⚠️  Rate limited by CoinGecko (429). Retrying in ${waitTime}ms... (attempt ${attempt + 1}/${maxRetries + 1})`
           );
 
           await delay(waitTime);
@@ -174,7 +174,7 @@ function processCoinGeckoResponse(response: CoinGeckoRangeResponse): CryptoRateE
 async function fetchCoinGeckoPrices(
   currency: string,
   fromTimestamp: number,
-  toTimestamp: number,
+  toTimestamp: number
 ): Promise<CryptoRateEntry[]> {
   const coinId = coinConfigs[currency].coinGeckoId;
   const url = new URL(`${COINGECKO_BASE_URL}/coins/${coinId}/market_chart/range`);
@@ -207,10 +207,10 @@ async function fetchCoinGeckoPrices(
 /*                              MAIN FUNCTIONS                                */
 /* -------------------------------------------------------------------------- */
 
-export async function fetchDailyCryptoRates(
+export function fetchDailyCryptoRates(
   currency: string,
   year: number,
-  month: number,
+  month: number
 ): Promise<CryptoRateEntry[]> {
   // Calculate date range
   const { fromTimestamp, toTimestamp } = calculateDateRange(year, month);
@@ -219,10 +219,10 @@ export async function fetchDailyCryptoRates(
   return fetchCoinGeckoPrices(currency, fromTimestamp, toTimestamp);
 }
 
-export async function fetchDailyCryptoRatesByRange(
+export function fetchDailyCryptoRatesByRange(
   currency: string,
   fromTimestamp: number,
-  toTimestamp: number,
+  toTimestamp: number
 ): Promise<CryptoRateEntry[]> {
   return fetchCoinGeckoPrices(currency, fromTimestamp, toTimestamp);
 }

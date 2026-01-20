@@ -1,7 +1,7 @@
 # See https://github.com/sablier-labs/devkit/blob/main/just/base.just
 import "./node_modules/@sablier/devkit/just/base.just"
 import "./node_modules/@sablier/devkit/just/npm.just"
-import "./node_modules/@sablier/devkit/just/tsv.just"
+import "./node_modules/@sablier/devkit/just/csv.just"
 
 set dotenv-load
 
@@ -53,4 +53,4 @@ YEAR := ```
 # Check TSV files
 [group("checks")]
 tsv-check:
-    just _tsv-check "{crypto,forex}/*.tsv"
+    just _csv-check --glob "{crypto,forex}/*.tsv"
