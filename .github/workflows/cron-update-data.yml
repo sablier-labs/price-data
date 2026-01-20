@@ -54,6 +54,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           repositories: price-data,indexers,accounting
+          permission-contents: write
 
       - name: Generate timestamp
         id: timestamp
