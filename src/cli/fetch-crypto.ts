@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { pathToFileURL } from "node:url";
 import chalk from "chalk";
 import Table from "cli-table3";
 import { Command } from "commander";
@@ -581,6 +582,7 @@ function createFetchCryptoRatesCommand(): Command {
 
 export const fetchCryptoRatesCmd = createFetchCryptoRatesCommand();
 
-if (require.main === module) {
+const isMainModule = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMainModule) {
   fetchCryptoRatesCmd.parse(process.argv);
 }

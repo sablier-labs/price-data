@@ -31,6 +31,9 @@ YEAR := ```
 # ---------------------------------------------------------------------------- #
 
 # Fetch cryptocurrency prices from CoinGecko
+[arg("currency", long)]
+[arg("year", long)]
+[arg("month", long)]
 @fetch-crypto currency year=YEAR month="all":
     na tsx src/cli/fetch-crypto.ts \
         --currency {{ currency }} \
@@ -38,12 +41,16 @@ YEAR := ```
         --month {{ month }}
 
 # Fetch cryptocurrency prices for recent days (for cron jobs)
-@fetch-crypto-recent currency days="3":
+[arg("currency", long)]
+[arg("days", long)]
+@fetch-crypto-recent currency="all" days="3":
     na tsx src/cli/fetch-crypto.ts \
         --currency {{ currency }} \
         --recent-days {{ days }}
 
 # Fetch daily GBP/USD forex rates from CurrencyFreaks
+[arg("year", long)]
+[arg("month", long)]
 @fetch-forex year=YEAR month="all" *args:
     na tsx src/cli/fetch-forex.ts \
         --year {{ year }} \

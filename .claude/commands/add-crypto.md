@@ -96,13 +96,13 @@ Determine fetch parameters:
 Run the fetch command:
 
 ```bash
-just fetch-crypto {SYMBOL} {year} {month}
+just fetch-crypto --currency {SYMBOL} --year {year} --month {month}
 ```
 
 IF `--from` spans multiple months to today:
 
 - Fetch each month sequentially
-- OR use `just fetch-crypto {SYMBOL} {year} all` if fetching full year
+- OR use `just fetch-crypto --currency {SYMBOL} --year {year} --month all` if fetching full year
 
 ### STEP 6: Verify and summarize
 
@@ -127,7 +127,7 @@ IF fetch failed:
 
 - WARN: "Price fetch failed. The coin config was added but no price data was fetched."
 - HINT: "Verify the CoinGecko ID is correct: https://coingecko.com/en/coins/{coingecko-id}"
-- HINT: "Try manually: just fetch-crypto {SYMBOL}"
+- HINT: "Try manually: just fetch-crypto --currency {SYMBOL}"
 
 ## Examples
 

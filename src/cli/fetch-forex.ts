@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import * as path from "node:path";
+import { pathToFileURL } from "node:url";
 import chalk from "chalk";
 import Table from "cli-table3";
 import { Command } from "commander";
@@ -367,6 +368,7 @@ function createFetchForexRatesCommand(): Command {
 
 export const fetchForexRatesCmd = createFetchForexRatesCommand();
 
-if (require.main === module) {
+const isMainModule = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMainModule) {
   fetchForexRatesCmd.parse(process.argv);
 }

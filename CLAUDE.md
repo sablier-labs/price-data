@@ -17,7 +17,7 @@ stored in TSV format and sourced from [CoinGecko](https://coingecko.com/api) (cr
 - `just tsc-check` - TypeScript type checking only
 - `just tsv-check` - Validate TSV files against schema
 - `ni <package>` - Install dependency (`ni -D` for dev dependency)
-- `just fetch-crypto <currency>` - Fetch crypto prices from CoinGecko
+- `just fetch-crypto --currency <symbol>` - Fetch crypto prices from CoinGecko
 - `just fetch-forex` - Fetch GBP/USD rates from CurrencyFreaks
 
 ## TSV Format
