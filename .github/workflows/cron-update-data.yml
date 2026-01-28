@@ -9,10 +9,8 @@ jobs:
   update-price-data:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-      - name: Set up devkit
-        uses: sablier-labs/devkit/actions/setup@main
+      - uses: actions/checkout@v5
+      - uses: sablier-labs/devkit/actions/setup@v1
         with:
           package-manager: bun
 
@@ -37,7 +35,7 @@ jobs:
         run: just tsv-check
 
       - name: Verify changes
-        run: | #shell
+        run: | # shell
           if ! git diff --quiet -- crypto/ forex/; then
             echo "✅ TSV files were updated"
             exit 0
@@ -63,7 +61,7 @@ jobs:
       - name: Commit and push changes
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: | #shell
+        run: | # shell
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
@@ -74,7 +72,7 @@ jobs:
       - name: Trigger downstream updates
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: | #shell
+        run: | # shell
           gh api repos/sablier-labs/indexers/dispatches \
             -f event_type=price-data-updated \
             -f client_payload[timestamp]="${{ steps.timestamp.outputs.human }}"
@@ -84,7 +82,7 @@ jobs:
             -f client_payload[timestamp]="${{ steps.timestamp.outputs.human }}"
 
       - name: Add summary
-        run: | #shell
+        run: | # shell
           echo "## Update result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
