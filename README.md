@@ -6,6 +6,7 @@ Centralized repository for cryptocurrency and forex exchange rate data used acro
 
 This repository serves as a single source of truth for price data shared between multiple Sablier repositories:
 
+- **UI** ([sablier-labs/ui](https://github.com/sablier-labs/ui)) - Official Sablier UI
 - **Indexers** ([sablier-labs/indexers](https://github.com/sablier-labs/indexers)) - Real-time blockchain data indexing
 - **Accounting** ([sablier-labs/business](https://github.com/sablier-labs/business)) - Financial reporting and
   accounting
@@ -16,7 +17,7 @@ By centralizing the data here, we avoid duplication and ensure consistency acros
 
 All price data is sourced from industry-standard APIs:
 
-- **Cryptocurrency Prices**: [CoinGecko API](https://www.coingecko.com/api) - Daily historical prices in USD
+- **Cryptocurrency Prices**: [CoinGecko API](https://coingecko.com/api) - Daily historical prices in USD
 - **Forex Exchange Rates**: [CurrencyFreaks API](https://currencyfreaks.com/) - Daily GBP/USD exchange rates
 
 ## Data Structure
@@ -121,7 +122,3 @@ For projects that need version-locked data, add this repository as a Git submodu
 ```bash
 git submodule add https://github.com/sablier-labs/price-data.git
 ```
-
-## Updating Data
-
-TODO
