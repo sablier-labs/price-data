@@ -3,21 +3,26 @@ argument-hint: "<SYMBOL> <coingecko-id> [--from YYYY-MM-DD]"
 disable-model-invocation: false
 name: add-crypto
 user-invocable: true
-description: Add a new cryptocurrency with price data from CoinGecko to the Sablier price-data repo. Creates the coin config entry in src/config/coins.ts, creates crypto/<SYMBOL>_USD.tsv, and fetches historical USD prices via just fetch-crypto. Use when onboarding or adding a new crypto token, coin, or currency to this repo. Trigger phrases include add crypto, add coin, add currency, new token, onboard a coin.
+description:
+  Add a new cryptocurrency with price data from CoinGecko to the Sablier price-data repo. Creates the coin config entry
+  in src/config/coins.ts, creates crypto/<SYMBOL>_USD.tsv, and fetches historical USD prices via just fetch-crypto. Use
+  when onboarding or adding a new crypto token, coin, or currency to this repo. Trigger phrases include add crypto, add
+  coin, add currency, new token, onboard a coin.
 ---
 
 # Add Crypto
 
-Onboard a new cryptocurrency: register its coin config, create its TSV file, and backfill historical USD prices from CoinGecko.
+Onboard a new cryptocurrency: register its coin config, create its TSV file, and backfill historical USD prices from
+CoinGecko.
 
 ## Arguments
 
 - `SYMBOL` (required): uppercase currency symbol (e.g., `MON`, `LINK`).
-- `coingecko-id` (required): CoinGecko API identifier (e.g., `monad`, `chainlink`). Find it in the coin's CoinGecko URL: `https://coingecko.com/en/coins/{coin-name}`.
+- `coingecko-id` (required): CoinGecko API identifier (e.g., `monad`, `chainlink`). Find it in the coin's CoinGecko URL:
+  `https://coingecko.com/en/coins/{coin-name}`.
 - `--from YYYY-MM-DD` (optional): start date for price data. Defaults to the first of the current month.
 
-If `SYMBOL` or `coingecko-id` is missing, stop and report:
-`Usage: add-crypto SYMBOL coingecko-id [--from YYYY-MM-DD]`
+If `SYMBOL` or `coingecko-id` is missing, stop and report: `Usage: add-crypto SYMBOL coingecko-id [--from YYYY-MM-DD]`
 
 ## Workflow
 
@@ -27,7 +32,8 @@ Run these to understand the current state before editing:
 
 - Existing currencies: `ls crypto/*.tsv | xargs -I {} basename {} _USD.tsv | sort`
 - Current coin config: read `src/config/coins.ts`
-- Available chains (for native currencies): `node -e "const {chains}=require('sablier'); console.log(Object.keys(chains).sort().join(', '))"`
+- Available chains (for native currencies):
+  `node -e "const {chains}=require('sablier'); console.log(Object.keys(chains).sort().join(', '))"`
 
 ### Step 1: Validate inputs
 
@@ -41,7 +47,8 @@ Run these to understand the current state before editing:
 
 Edit `src/config/coins.ts`. Entries are sorted alphabetically by symbol — insert at the correct position.
 
-If the token is a chain's native currency in the `sablier` package (e.g., MON for Monad, S for Sonic) and `chains.{chainName}.nativeCurrency` exists with a matching symbol and `coinGeckoId`, use the dynamic pattern:
+If the token is a chain's native currency in the `sablier` package (e.g., MON for Monad, S for Sonic) and
+`chains.{chainName}.nativeCurrency` exists with a matching symbol and `coinGeckoId`, use the dynamic pattern:
 
 ```typescript
 [chains.{chainName}.nativeCurrency.symbol]: {
@@ -77,7 +84,8 @@ Run:
 just fetch-crypto --currency {SYMBOL} --year {year} --month {month}
 ```
 
-If `--from` spans multiple months up to today, fetch each month sequentially, or use `--month all` to fetch the full year.
+If `--from` spans multiple months up to today, fetch each month sequentially, or use `--month all` to fetch the full
+year.
 
 ### Step 5: Verify and summarize
 
@@ -115,7 +123,8 @@ With a start date:
 add-crypto MON monad --from 2025-11-24
 ```
 
-Common CoinGecko IDs: ETH → `ethereum`, BTC → `bitcoin`, LINK → `chainlink`, UNI → `uniswap`, AAVE → `aave`, COMP → `compound-governance-token`.
+Common CoinGecko IDs: ETH → `ethereum`, BTC → `bitcoin`, LINK → `chainlink`, UNI → `uniswap`, AAVE → `aave`, COMP →
+`compound-governance-token`.
 
 ## Notes
 
