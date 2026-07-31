@@ -22,7 +22,7 @@ All price data is sourced from industry-standard APIs:
 
 ## Data Structure
 
-Price data is organized in `data/crypto/` (cryptocurrency prices in USD) and `data/forex/` (foreign exchange rates).
+Price data is organized in `crypto/` (cryptocurrency prices in USD) and `forex/` (foreign exchange rates).
 
 ### TSV Format
 
@@ -74,7 +74,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 // Read ETH prices
-const dataPath = join(process.cwd(), "node_modules", "@sablier/price-data", "data/crypto/ETH_USD.tsv");
+const dataPath = join(process.cwd(), "node_modules", "@sablier/price-data", "crypto/ETH_USD.tsv");
 const ethPrices = readFileSync(dataPath, "utf-8");
 
 // Parse TSV (skip header)
@@ -95,13 +95,13 @@ Alternatively, you can read the TSV files directly from this repository without 
 **Example: curl:**
 
 ```bash
-curl -s https://raw.githubusercontent.com/sablier-labs/price-data/main/data/crypto/ETH_USD.tsv | head -n 10
+curl -s https://raw.githubusercontent.com/sablier-labs/price-data/main/crypto/ETH_USD.tsv | head -n 10
 ```
 
 **Example (fetch with Node.js):**
 
 ```typescript
-const response = await fetch("https://raw.githubusercontent.com/sablier-labs/price-data/main/data/crypto/ETH_USD.tsv");
+const response = await fetch("https://raw.githubusercontent.com/sablier-labs/price-data/main/crypto/ETH_USD.tsv");
 const ethPrices = await response.text();
 
 // Parse TSV (skip header)
