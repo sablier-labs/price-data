@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import ora from "ora";
 import { toFloat } from "radash";
-import { fetchDailyForexRates } from "./fetch-forex/currencyfreaks-client.js";
+import { fetchDailyForexRates } from "./fetch-forex/frankfurter-client.js";
 import { getForexTsvPath, updateTsvFile } from "./fetch-forex/tsv-utils.js";
 
 dayjs.extend(utc);
@@ -257,7 +257,7 @@ async function fetchForexRatesAction(options: FetchForexRatesOptions): Promise<v
       const spinner = ora(`Fetching ${yearStr}-${monthStr}`).start();
 
       try {
-        // Fetch daily rates from CurrencyFreaks API
+        // Fetch daily rates from Frankfurter API (ECB)
         const forexRates = await fetchDailyForexRates(year, month);
 
         // Update TSV file with new data
@@ -299,6 +299,9 @@ async function fetchForexRatesAction(options: FetchForexRatesOptions): Promise<v
 
     // Display summary table
     displaySummaryTable(results);
+    if (results.some((result) => result.status === "error")) {
+      throw new Error("One or more forex months failed to fetch");
+    }
     return;
   }
 
@@ -317,7 +320,7 @@ async function fetchForexRatesAction(options: FetchForexRatesOptions): Promise<v
   const spinner = ora(`Fetching GBP/USD forex rates for ${year}-${month}`).start();
 
   try {
-    // Fetch daily rates from CurrencyFreaks API
+    // Fetch daily rates from Frankfurter API (ECB)
     const forexRates = await fetchDailyForexRates(yearNum, monthNum);
 
     if (forexRates.length === 0) {
@@ -353,7 +356,7 @@ function createFetchForexRatesCommand(): Command {
   const command = new Command();
 
   command
-    .description("Fetch daily GBP/USD forex rates from CurrencyFreaks API")
+    .description("Fetch daily GBP/USD forex rates from Frankfurter API (ECB)")
     .option("--year <YYYY>", "Year in YYYY format (defaults to current year)")
     .option(
       "--month <MM>",

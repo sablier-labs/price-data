@@ -48,7 +48,7 @@ YEAR := ```
         --currency {{ currency }} \
         --recent-days {{ days }}
 
-# Fetch daily GBP/USD forex rates from CurrencyFreaks
+# Fetch daily GBP/USD forex rates from Frankfurter (ECB)
 [arg("year", long)]
 [arg("month", long)]
 @fetch-forex year=YEAR month="all" *args:

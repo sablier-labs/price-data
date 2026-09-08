@@ -25,9 +25,7 @@ jobs:
           COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
         run: just fetch-crypto-recent --currency all
 
-      - name: Fetch forex rates
-        env:
-          CURRENCY_FREAKS_API_KEY: ${{ secrets.CURRENCY_FREAKS_API_KEY }}
+      - name: Fetch ECB forex rates
         run: just fetch-forex
 
       - name: Validate TSV files

@@ -18,7 +18,13 @@ By centralizing the data here, we avoid duplication and ensure consistency acros
 All price data is sourced from industry-standard APIs:
 
 - **Cryptocurrency Prices**: [CoinGecko API](https://coingecko.com/api) - Daily historical prices in USD
-- **Forex Exchange Rates**: [CurrencyFreaks API](https://currencyfreaks.com/) - Daily GBP/USD exchange rates
+- **Forex Exchange Rates**: [Frankfurter API](https://frankfurter.dev/) - ECB GBP/USD reference rates, no API key
+  required
+
+Forex observations through August 25, 2026 retain their original CurrencyFreaks values. From August 26, missing dates
+are filled from Frankfurter v2 with the provider pinned to ECB. Weekend and holiday dates carry the nearest earlier ECB
+observation, up to seven days back. Fetches preserve saved observations and fail if a requested date cannot be resolved.
+Run `just fetch-forex --year 2026 --month 08` to fill a specific month.
 
 ## Data Structure
 
@@ -47,7 +53,7 @@ We use this data structure to make it easier to use the files in our
 - Dates are in UTC timezone
 - Dates are sorted chronologically
 - No duplicate dates within a file
-- Prices are daily closing prices (00:00 UTC)
+- Crypto prices use daily closing observations; forex uses ECB reference rates with the fallback policy above
 
 ## Installation
 
