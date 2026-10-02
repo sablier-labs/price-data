@@ -8,6 +8,9 @@ export const coinConfigs: Record<string, CoinConfig> = {
   AAVE: {
     coinGeckoId: "aave",
   },
+  ARB: {
+    coinGeckoId: "arbitrum",
+  },
   [chains.avalanche.nativeCurrency.symbol]: {
     coinGeckoId: chains.avalanche.nativeCurrency.coinGeckoId,
   },
