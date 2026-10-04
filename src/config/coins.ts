@@ -71,6 +71,9 @@ export const coinConfigs: Record<string, CoinConfig> = {
   USDT: {
     coinGeckoId: "tether",
   },
+  WBTC: {
+    coinGeckoId: "wrapped-bitcoin",
+  },
   [chains.xdc.nativeCurrency.symbol]: {
     coinGeckoId: chains.xdc.nativeCurrency.coinGeckoId,
   },
