@@ -41,8 +41,7 @@ export async function fetchRateForDate(date: string): Promise<number> {
     }
 
     if (
-      !data ||
-      data.base !== "GBP" ||
+      data?.base !== "GBP" ||
       data.quote !== "USD" ||
       typeof data.date !== "string" ||
       !allowedDates.includes(data.date) ||
