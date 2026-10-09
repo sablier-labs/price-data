@@ -7,7 +7,7 @@ on:
 
 jobs:
   update-price-data:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: PaulRBerg/devkit/actions/setup@v1
         with:
