@@ -1,25 +1,8 @@
 {
   "name": "@sablier/price-data",
-  "description": "Centralized price data repository for Sablier projects",
-  "license": "MIT",
-  "private": true,
   "version": "1.0.0",
-  "type": "module",
-  "author": {
-    "name": "Sablier Labs Ltd",
-    "url": "https://sablier.com"
-  },
-  "bugs": {
-    "url": "https://github.com/sablier-labs/price-data/issues"
-  },
-  "engines": {
-    "node": ">=22"
-  },
-  "files": [
-    "crypto/",
-    "forex/"
-  ],
-  "homepage": "https://github.com/sablier-labs/price-data#readme",
+  "private": true,
+  "description": "Centralized price data repository for Sablier projects",
   "keywords": [
     "coingecko",
     "cryptocurrency",
@@ -28,16 +11,27 @@
     "sablier",
     "tsv"
   ],
-  "publishConfig": {
-    "access": "public"
+  "homepage": "https://github.com/sablier-labs/price-data#readme",
+  "bugs": {
+    "url": "https://github.com/sablier-labs/price-data/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sablier-labs/price-data.git"
   },
+  "license": "MIT",
+  "author": {
+    "name": "Sablier Labs Ltd",
+    "url": "https://sablier.com"
+  },
+  "type": "module",
+  "files": [
+    "crypto/",
+    "forex/"
+  ],
   "devDependencies": {
-    "@biomejs/biome": "^2.5.0",
-    "@prb/devkit": "^1.0.4",
+    "@biomejs/biome": "^2.6.2",
+    "@prb/devkit": "^1.2.0",
     "@types/node": "^24.7.2",
     "axios": "^1.12.2",
     "axios-retry": "^4.5.0",
@@ -51,6 +45,12 @@
     "sablier": "1.8.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.2",
-    "ultracite": "^7.0.11"
+    "ultracite": "^8.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

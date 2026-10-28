@@ -31,8 +31,7 @@ export async function fetchRateForDate(date: string): Promise<number> {
     url.searchParams.set("providers", "ECB");
     let data: FrankfurterResponse;
     try {
-      const response = await axios.get<FrankfurterResponse>(url.toString(), { timeout: 10_000 });
-      data = response.data;
+      ({ data } = await axios.get<FrankfurterResponse>(url.toString(), { timeout: 10_000 }));
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         continue;

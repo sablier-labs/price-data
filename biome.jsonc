@@ -1,7 +1,25 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite/core", "@prb/devkit/biome/base"],
+  "extends": ["ultracite/biome/core", "@prb/devkit/biome/base"],
   "files": {
     "includes": ["**/*.{json,jsonc,ts,tsx}"]
-  }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "src/cli/fetch-crypto.ts",
+        "src/cli/fetch-crypto/coingecko-client.ts",
+        "src/cli/fetch-forex.ts",
+        "src/cli/fetch-forex/frankfurter-client.ts"
+      ],
+      "linter": {
+        "rules": {
+          "performance": {
+            // Retries/fallbacks depend on prior responses; currencies/months share rate limits and TSV writes.
+            "noAwaitInLoops": "off"
+          }
+        }
+      }
+    }
+  ]
 }

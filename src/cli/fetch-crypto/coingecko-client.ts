@@ -104,7 +104,7 @@ async function withRetry<T>(
   maxRetries: number = MAX_RETRIES,
   delayMs: number = RETRY_DELAY
 ): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+  for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
     try {
       return await operation();
     } catch (error) {
@@ -136,7 +136,7 @@ async function withRetry<T>(
 
       // If it's the last attempt or a non-retryable error, throw error
       if (attempt === maxRetries) {
-        throw new Error(`Max retries (${maxRetries}) exceeded for operation`);
+        throw new Error(`Max retries (${maxRetries}) exceeded for operation`, { cause: error });
       }
 
       throw error;

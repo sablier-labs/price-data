@@ -47,11 +47,11 @@ export function readExistingTsvData(currency: string): TsvData {
   const lines = content.trim().split("\n");
 
   // Skip header line and parse entries
-  for (let i = 1; i < lines.length; i++) {
+  for (let i = 1; i < lines.length; i += 1) {
     const line = lines[i].trim();
     if (line) {
       const [dateQuoted, priceStr] = line.split("\t");
-      const date = dateQuoted.replace(/"/g, ""); // Remove quotes
+      const date = dateQuoted.replace(/"/gu, ""); // Remove quotes
       const price = Number.parseFloat(priceStr);
 
       if (!Number.isNaN(price)) {
@@ -112,12 +112,12 @@ function mergeEntries(
       // Override only if the price is different
       if (existing.price !== newEntry.price) {
         existingMap.set(newEntry.date, newEntry);
-        changedCount++;
+        changedCount += 1;
       }
     } else {
       // New date, add it
       existingMap.set(newEntry.date, newEntry);
-      changedCount++;
+      changedCount += 1;
     }
   }
 
@@ -198,11 +198,11 @@ export function updateTsvFileByDateRange(
     if (existing) {
       if (existing.price !== newEntry.price) {
         existingMap.set(newEntry.date, newEntry);
-        changedCount++;
+        changedCount += 1;
       }
     } else {
       existingMap.set(newEntry.date, newEntry);
-      changedCount++;
+      changedCount += 1;
     }
   }
 

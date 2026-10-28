@@ -60,11 +60,11 @@ function getAllMonthsSinceMinYear(): Array<{ year: number; month: number }> {
 
   const months: Array<{ year: number; month: number }> = [];
 
-  for (let year = MIN_YEAR; year <= currentYear; year++) {
+  for (let year = MIN_YEAR; year <= currentYear; year += 1) {
     const startMonth = 1;
     const endMonth = year === currentYear ? currentMonth : 12;
 
-    for (let month = startMonth; month <= endMonth; month++) {
+    for (let month = startMonth; month <= endMonth; month += 1) {
       months.push({ month, year });
     }
   }
@@ -82,7 +82,7 @@ function getAllMonthsForYear(year: number): Array<{ year: number; month: number 
   // If it's the current year, only go up to current month
   const endMonth = year === currentYear ? currentMonth : 12;
 
-  for (let month = 1; month <= endMonth; month++) {
+  for (let month = 1; month <= endMonth; month += 1) {
     months.push({ month, year });
   }
 

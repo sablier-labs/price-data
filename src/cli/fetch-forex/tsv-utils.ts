@@ -47,11 +47,11 @@ export function readExistingTsvData(): TsvData {
   const lines = content.trim().split("\n");
 
   // Skip header line and parse entries
-  for (let i = 1; i < lines.length; i++) {
+  for (let i = 1; i < lines.length; i += 1) {
     const line = lines[i].trim();
     if (line) {
       const [dateQuoted, rateStr] = line.split("\t");
-      const date = dateQuoted.replace(/"/g, ""); // Remove quotes
+      const date = dateQuoted.replace(/"/gu, ""); // Remove quotes
       const rate = Number.parseFloat(rateStr);
 
       if (!Number.isNaN(rate)) {

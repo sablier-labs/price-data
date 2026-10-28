@@ -7,9 +7,9 @@ import axios from "axios";
 import { fetchDailyForexRates, fetchRateForDate } from "./frankfurter-client.js";
 import { updateTsvFile } from "./tsv-utils.js";
 
-const INVALID_RESPONSE = /Invalid Frankfurter response/;
-const MISSING_RATE = /previous 7 days/;
-const OPERATIONAL_ERROR = /HTTP 503/;
+const INVALID_RESPONSE = /Invalid Frankfurter response/u;
+const MISSING_RATE = /previous 7 days/u;
+const OPERATIONAL_ERROR = /HTTP 503/u;
 
 afterEach(() => mock.restoreAll());
 
@@ -35,7 +35,7 @@ test("walks backward on 404 and accepts the seven-day boundary", async () => {
   const request = mockRate({ base: "GBP", date: "2026-08-24", quote: "USD", rate: 1.35 });
   request.mock.mockImplementationOnce(() => Promise.reject(notFound()));
   assert.equal(await fetchRateForDate("2026-08-31"), 1.35);
-  const fallbackUrl = request.mock.calls[1].arguments[0];
+  const [fallbackUrl] = request.mock.calls[1].arguments;
   assert.ok(typeof fallbackUrl === "string" && fallbackUrl.includes("date=2026-08-30"));
 });
 
